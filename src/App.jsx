@@ -14,7 +14,7 @@ export default function App() {
   const [form, setForm] = useState({ name: '', guests: '', phone: '' })
 
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1000)
+    const t = setTimeout(() => setLoading(false), 2000)
     return () => clearTimeout(t)
   }, [])
 
