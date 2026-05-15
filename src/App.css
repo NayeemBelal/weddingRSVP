@@ -11,6 +11,7 @@
   padding: 40px 16px;
 }
 
+
 /* ── Flower overlays ── */
 .flowers {
   position: fixed;
@@ -27,7 +28,7 @@
 }
 
 .flowers-tr {
-  top: calc(-1 * env(safe-area-inset-top, 0px) - 20px);
+  top: 0;
   right: -40px;
   transform: rotate(180deg);
 }
@@ -35,6 +36,7 @@
 /* ── Arch card ── */
 .arch-wrapper {
   position: relative;
+  margin-top: -40px;
   z-index: 20;
   display: flex;
   align-items: center;
@@ -346,11 +348,77 @@
   }
 
   .flowers-tr {
-    top: calc(-1 * env(safe-area-inset-top, 0px) - 10px);
+    top: 0;
     right: -10px;
   }
 
   .arch-card {
     aspect-ratio: 5 / 8;
+  }
+
+  .bismillah {
+    margin-top: 24px;
+  }
+
+  /* Bigger invite text on mobile */
+  .invite-tagline {
+    font-size: 1rem;
+  }
+
+  .name {
+    font-size: 1.4rem;
+  }
+
+  .ampersand {
+    font-size: 2rem;
+  }
+
+  .date,
+  .time,
+  .venue {
+    font-size: 0.85rem;
+  }
+
+  .address {
+    font-size: 0.8rem;
+  }
+
+  /* RSVP form — bigger text + rectangular inputs */
+  .rsvp-heading {
+    font-size: 1.6rem;
+  }
+
+  .rsvp-sub {
+    font-size: 0.82rem;
+  }
+
+  .field-group {
+    margin-bottom: 18px;
+  }
+
+  .field-label {
+    font-size: 0.75rem;
+    margin-bottom: 8px;
+  }
+
+  .field-input {
+    font-size: 1.05rem;
+    border: none;
+    border-bottom: 1px solid #8a9e7a;
+    padding: 10px 2px;
+    background: transparent;
+  }
+
+  .field-input:focus {
+    border-bottom-color: #4a5e3a;
+  }
+
+  .rsvp-btn {
+    font-size: 0.82rem;
+    padding: 12px 30px;
+  }
+
+  .back-btn {
+    font-size: 0.85rem;
   }
 }
