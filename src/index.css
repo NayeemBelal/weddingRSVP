@@ -13,5 +13,5 @@ body {
   font-family: 'Cormorant Garamond', Georgia, serif;
   -webkit-font-smoothing: antialiased;
   background-color: #c8d5bf;
-  overflow-x: hidden;
+  overflow: hidden;
 }
