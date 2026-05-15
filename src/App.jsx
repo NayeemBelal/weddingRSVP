@@ -41,9 +41,9 @@ export default function App() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <span className="intro-initial">F</span>
-              <span className="intro-amp">&amp;</span>
               <span className="intro-initial">N</span>
+              <span className="intro-amp">&amp;</span>
+              <span className="intro-initial">F</span>
             </motion.div>
           </motion.div>
         )}

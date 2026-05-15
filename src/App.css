@@ -394,27 +394,27 @@
     margin-top: 24px;
   }
 
-  /* Bigger invite text on mobile */
+  /* Invite text on mobile */
   .invite-tagline {
-    font-size: 1rem;
+    font-size: 0.88rem;
   }
 
   .name {
-    font-size: 1.4rem;
+    font-size: 1.15rem;
   }
 
   .ampersand {
-    font-size: 2rem;
+    font-size: 1.6rem;
   }
 
   .date,
   .time,
   .venue {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
   }
 
   .address {
-    font-size: 0.8rem;
+    font-size: 0.7rem;
   }
 
   /* RSVP form — bigger text + rectangular inputs */
