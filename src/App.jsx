@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import './App.css'
 
@@ -8,9 +8,15 @@ const fadeUp = (delay = 0) => ({
 })
 
 export default function App() {
+  const [loading, setLoading] = useState(true)
   const [showRsvp, setShowRsvp] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [form, setForm] = useState({ name: '', guests: '', phone: '' })
+
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), 1000)
+    return () => clearTimeout(t)
+  }, [])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -20,6 +26,29 @@ export default function App() {
   }
 
   return (
+    <>
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className="intro"
+            key="intro"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 1, ease: 'easeInOut' } }}
+          >
+            <motion.div
+              className="intro-monogram"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+            >
+              <span className="intro-initial">F</span>
+              <span className="intro-amp">&amp;</span>
+              <span className="intro-initial">N</span>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     <div className="page">
       {/* Flowers — bottom left */}
       <motion.img
@@ -226,5 +255,6 @@ export default function App() {
         </motion.div>
       </div>
     </div>
+    </>
   )
 }

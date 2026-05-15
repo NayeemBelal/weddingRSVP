@@ -1,12 +1,45 @@
-/* ── Page ── */
-.page {
-  height: 100vh;
-  width: 100%;
+/* ── Intro screen ── */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
   background-color: #c5d0bc;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
+}
+
+.intro-monogram {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.intro-initial {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(4rem, 18vw, 7rem);
+  color: #1a1a1a;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.intro-amp {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 10vw, 4.5rem);
+  color: #4a5e3a;
+  line-height: 1;
+}
+
+/* ── Page ── */
+.page {
+  position: fixed;
+  inset: 0;
+  background-color: #c5d0bc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
   padding: 40px 16px;
 }
@@ -36,7 +69,7 @@
 /* ── Arch card ── */
 .arch-wrapper {
   position: relative;
-  margin-top: -40px;
+  margin-top: -80px;
   z-index: 20;
   display: flex;
   align-items: center;
@@ -106,7 +139,7 @@
 }
 
 .name {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(1.15rem, 4vw, 1.55rem);
   color: #1a1a1a;
@@ -134,7 +167,7 @@
 }
 
 .date {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(0.72rem, 2vw, 0.82rem);
   letter-spacing: 0.2em;
@@ -144,7 +177,7 @@
 }
 
 .time {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 300;
   font-size: clamp(0.68rem, 1.8vw, 0.76rem);
   letter-spacing: 0.18em;
@@ -154,7 +187,7 @@
 }
 
 .venue {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(0.72rem, 2vw, 0.82rem);
   letter-spacing: 0.15em;
@@ -175,7 +208,7 @@
 
 /* ── RSVP button ── */
 .rsvp-btn {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(0.72rem, 2vw, 0.8rem);
   letter-spacing: 0.28em;
@@ -211,7 +244,7 @@
 }
 
 .rsvp-heading {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(1.3rem, 4vw, 1.7rem);
   letter-spacing: 0.2em;
@@ -237,7 +270,7 @@
 }
 
 .field-label {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(0.62rem, 1.6vw, 0.7rem);
   letter-spacing: 0.2em;
   color: #3a3a3a;
@@ -310,7 +343,7 @@
 }
 
 .thanks-heading {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-weight: 400;
   font-size: clamp(1.2rem, 3.5vw, 1.5rem);
   letter-spacing: 0.15em;
@@ -327,7 +360,7 @@
 }
 
 .thanks-detail {
-  font-family: 'Cormorant SC', serif;
+  font-family: 'Cormorant Garamond', serif;
   font-size: clamp(0.65rem, 1.6vw, 0.72rem);
   letter-spacing: 0.18em;
   color: #6b8060;
