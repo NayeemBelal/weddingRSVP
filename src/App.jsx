@@ -75,7 +75,7 @@ export default function App() {
       <div className="page">
         {/* Flowers — bottom left */}
         <motion.img
-          src="/rightflowers.png"
+          src="/rightflowers.webp"
           alt=""
           className="flowers flowers-bl"
           initial={{ opacity: 0, scale: 0.92 }}
@@ -85,7 +85,7 @@ export default function App() {
 
         {/* Flowers — top right */}
         <motion.img
-          src="/leftflowers.png"
+          src="/leftflowers.webp"
           alt=""
           className="flowers flowers-tr"
           initial={{ opacity: 0, scale: 0.92 }}
@@ -102,7 +102,7 @@ export default function App() {
             transition={{ duration: 1.1, ease: [0.25, 0.1, 0.25, 1] }}
           >
             {/* Arch background image */}
-            <img src="/arch.png" alt="" className="arch-img" />
+            <img src="/arch.webp" alt="" className="arch-img" />
 
             {/* Content inside the arch */}
             <div className="arch-content">
@@ -116,7 +116,7 @@ export default function App() {
                     exit={{ opacity: 0, y: -20, transition: { duration: 0.4 } }}
                   >
                     <motion.img
-                      src="/bismillah.png"
+                      src="/bismillah.webp"
                       alt="Bismillah ir-Rahman ir-Rahim"
                       className="bismillah"
                       variants={fadeUp(0.3)}
@@ -292,7 +292,7 @@ export default function App() {
                           }}
                         >
                           <img
-                            src="/bismillah.png"
+                            src="/bismillah.webp"
                             alt=""
                             className="bismillah bismillah-sm"
                           />
