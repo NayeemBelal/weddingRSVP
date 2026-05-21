@@ -317,6 +317,25 @@
   width: 100%;
 }
 
+.submit-btn:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid #6b8060;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 .back-btn {
   background: none;
   border: none;
