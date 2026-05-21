@@ -223,9 +223,11 @@
   outline: none;
 }
 
-.rsvp-btn:hover {
-  background: #6b8060;
-  color: #f7f5f0;
+@media (hover: hover) {
+  .rsvp-btn:hover {
+    background: #6b8060;
+    color: #f7f5f0;
+  }
 }
 
 /* ── RSVP form view ── */
