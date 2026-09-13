@@ -1,0 +1,763 @@
+/* ── Tokens ── */
+:root {
+  /* Ground */
+  --burgundy: #4b0f18;
+  --burgundy-deep: #33090f;
+  --burgundy-soft: #6a1c27;
+  /* Accents */
+  --champagne: #ecd9b6;
+  --champagne-pale: #f5e8cf;
+  --gold: #c9a66a;
+  --gold-pale: rgba(201, 166, 106, 0.45);
+  /* All type shares the names' champagne */
+  --ink: #ecd9b6;
+  --ink-soft: #ecd9b6;
+
+  --serif: "Cormorant Garamond", "Cormorant", Garamond, "Times New Roman", serif;
+  --script: "MonteCarlo", "Snell Roundhand", "Brush Script MT", cursive;
+
+  --frame-gap: clamp(12px, 2.4vw, 28px);
+  --frame-gap-inner: 6px;
+  --content-w: 40rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--burgundy-deep);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--serif);
+  font-size: 1.125rem;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--burgundy);
+}
+
+/* Felt-paper grain and edge vignette, like the printed flyer */
+#root::before,
+#root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+#root::before {
+  z-index: 1;
+  background:
+    radial-gradient(70% 50% at 50% 30%, rgba(120, 40, 52, 0.5) 0%, rgba(75, 15, 24, 0) 100%),
+    radial-gradient(130% 100% at 50% 50%, rgba(20, 4, 8, 0) 50%, rgba(20, 4, 8, 0.6) 100%);
+}
+#root::after {
+  z-index: 2;
+  opacity: 0.32;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.95  0 0 0 0 0.85  0 0 0 0 0.7  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  background-size: 260px 260px;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: var(--champagne);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gold-pale);
+  transition: border-color 0.2s;
+}
+a:hover {
+  border-color: var(--gold);
+}
+
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* ── Type roles ── */
+.caps {
+  font-variant: small-caps;
+  letter-spacing: 0.16em;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.script {
+  font-family: var(--script);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.1;
+  color: var(--champagne);
+}
+
+/* ── Intro ── */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: var(--burgundy);
+  display: grid;
+  place-items: center;
+  color: var(--gold);
+}
+
+/* ── Page frame ── */
+#root,
+.site {
+  position: relative;
+  min-height: 100vh;
+}
+/* Frame, nav and content fade in together once the intro lets go. */
+.site .frame,
+.site .shell {
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.site.is-ready .frame,
+.site.is-ready .shell {
+  opacity: 1;
+}
+.frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  color: var(--gold);
+}
+.frame-art {
+  display: none;
+}
+.frame-outer,
+.frame-inner {
+  position: absolute;
+  border: 1px solid var(--gold);
+}
+.frame-outer {
+  inset: var(--frame-gap);
+}
+.frame-inner {
+  inset: calc(var(--frame-gap) + var(--frame-gap-inner));
+  border-color: var(--gold-pale);
+}
+.frame-outer {
+  opacity: 0.8;
+}
+.corner {
+  position: absolute;
+  width: clamp(90px, 14vw, 190px);
+  height: auto;
+}
+.corner-tl { top: var(--frame-gap); left: var(--frame-gap); }
+.corner-tr { top: var(--frame-gap); right: var(--frame-gap); transform: scaleX(-1); }
+.corner-bl { bottom: var(--frame-gap); left: var(--frame-gap); transform: scaleY(-1); }
+.corner-br { bottom: var(--frame-gap); right: var(--frame-gap); transform: scale(-1); }
+
+/* ── Shell ── */
+.shell {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(var(--frame-gap) + 18px) calc(var(--frame-gap) + 16px);
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding-block: clamp(24px, 5vh, 64px) clamp(40px, 8vh, 96px);
+}
+
+/* ── Nav ── */
+.nav {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: clamp(20px, 4vh, 40px);
+}
+.nav-mark {
+  border: 0;
+  line-height: 0;
+}
+.monogram {
+  display: block;
+  height: auto;
+  user-select: none;
+}
+.nav .monogram {
+  width: 76px;
+}
+/* Three columns with the middle sized to content, so RSVP sits on the exact center line
+   regardless of how wide Home and FAQ are. */
+.nav-links {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: clamp(20px, 4vw, 40px);
+}
+.nav-links > :first-child {
+  justify-self: end;
+}
+.nav-links > :last-child {
+  justify-self: start;
+}
+.nav-link {
+  font-variant: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.2em;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  border: 0;
+  padding: 6px 2px;
+  position: relative;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  right: 50%;
+  bottom: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: left 0.3s, right 0.3s;
+}
+.nav-link:hover::after,
+.nav-link.is-active::after {
+  left: 0;
+  right: 0;
+}
+.nav-link.is-active {
+  color: var(--champagne);
+}
+
+/* ── Home / invitation ── */
+.invite {
+  width: 100%;
+  max-width: var(--content-w);
+  text-align: center;
+}
+.invite > * {
+  margin: 0;
+}
+
+.bismillah {
+  width: clamp(180px, 40vw, 260px);
+  height: auto;
+  margin: 0 auto 28px;
+  display: block;
+  /* the calligraphy is black ink on transparent; recolor it gold */
+  filter: brightness(0) invert(0.82) sepia(0.45) saturate(1.6) brightness(0.95);
+  opacity: 0.95;
+}
+.bismillah-sm {
+  width: 150px;
+  margin-bottom: 8px;
+}
+
+.invite-lead {
+  font-size: 1rem;
+  color: var(--ink-soft);
+  margin-bottom: 16px;
+}
+
+.name {
+  font-size: clamp(3.2rem, 10.5vw, 5.6rem);
+  line-height: 1.15;
+  margin: 0;
+  word-spacing: 0.35em;
+}
+
+.parents {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  margin-top: 12px;
+}
+
+.amp {
+  font-family: "Tangerine", var(--script);
+  font-weight: 700;
+  font-size: clamp(2.8rem, 7.5vw, 4rem);
+  line-height: 1;
+  margin: 12px 0 4px;
+  color: var(--champagne);
+}
+
+.date-block {
+  margin-top: 40px;
+}
+.weekday {
+  font-size: 1.05rem;
+}
+.date-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 4px 0;
+  font-size: 1.4rem;
+}
+.date-line .rule {
+  display: inline-block;
+  width: 1px;
+  height: 2.2rem;
+  background: var(--gold);
+}
+.day {
+  font-size: 2.6rem;
+  font-weight: 400;
+  line-height: 1;
+  color: var(--champagne);
+}
+.time {
+  font-size: 1rem;
+  color: var(--ink-soft);
+}
+
+.venue-block {
+  margin-top: 36px;
+}
+.venue {
+  font-size: 1.2rem;
+  color: var(--champagne);
+}
+.address {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-top: 2px;
+}
+.quiet-links {
+  margin-top: 10px;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  color: var(--champagne);
+}
+
+.invite .btn {
+  margin-top: 44px;
+}
+.rsvp-by {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: 14px;
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-block;
+  font-family: var(--serif);
+  font-variant: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.18em;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--burgundy-deep);
+  background: var(--champagne);
+  border: 1px solid var(--champagne);
+  border-radius: 0;
+  padding: 13px 34px;
+  min-height: 50px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.25s, color 0.25s, transform 0.15s;
+}
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(75, 15, 24, 0.35);
+  pointer-events: none;
+}
+.btn:hover:not(:disabled) {
+  background: var(--champagne-pale);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn:disabled {
+  background: transparent;
+  border-color: var(--gold-pale);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+.btn:disabled::after {
+  border-color: transparent;
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--champagne);
+  border-color: var(--gold);
+}
+.btn-ghost::after {
+  border-color: var(--gold-pale);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(236, 217, 182, 0.08);
+}
+
+.link-btn {
+  background: none;
+  border: 0;
+  padding: 4px;
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  cursor: pointer;
+  border-bottom: 1px solid transparent;
+}
+.link-btn:hover {
+  color: var(--champagne);
+  border-bottom-color: var(--gold-pale);
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  vertical-align: middle;
+  border: 1.5px solid rgba(75, 15, 24, 0.3);
+  border-top-color: var(--burgundy-deep);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Panels (RSVP + FAQ) ── */
+.panel {
+  width: 100%;
+  max-width: 30rem;
+  text-align: center;
+}
+.panel-wide {
+  max-width: var(--content-w);
+}
+.panel-title {
+  font-size: clamp(1.6rem, 5vw, 2.1rem);
+  color: var(--champagne);
+  margin: 0 0 6px;
+  font-weight: 500;
+}
+.panel-sub {
+  margin: 0 auto 28px;
+  max-width: 34rem;
+  color: var(--ink-soft);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+.stack .panel-sub {
+  margin-bottom: 6px;
+}
+
+.field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+}
+.field-label {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+.field input,
+.field textarea {
+  width: 100%;
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  color: var(--champagne-pale);
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--gold-pale);
+  border-radius: 0;
+  padding: 12px 14px;
+  transition: border-color 0.2s;
+}
+.field input {
+  text-align: center;
+  letter-spacing: 0.02em;
+}
+.field textarea {
+  resize: vertical;
+  font-size: 1.05rem;
+  line-height: 1.5;
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: rgba(236, 217, 182, 0.5);
+  font-style: italic;
+  letter-spacing: 0;
+}
+.field input:focus,
+.field textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+/* Guest rows */
+.guest-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-top: 1px solid var(--gold-pale);
+}
+.guest-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--gold-pale);
+}
+.guest-name {
+  font-size: 1.2rem;
+  text-align: left;
+}
+.choice {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.chip {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-variant: small-caps;
+  text-transform: lowercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  background: transparent;
+  border: 1px solid var(--gold-pale);
+  border-radius: 0;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.chip:hover {
+  border-color: var(--gold);
+}
+.chip.is-on {
+  background: var(--champagne);
+  border-color: var(--champagne);
+  color: var(--burgundy-deep);
+}
+
+/* Pick between matching families */
+.pick-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  border-top: 1px solid var(--gold-pale);
+}
+.pick-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 6px;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--gold-pale);
+  font-family: var(--serif);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.pick-row:hover {
+  background: rgba(236, 217, 182, 0.07);
+}
+.pick-label {
+  font-size: 1.2rem;
+}
+.pick-members {
+  font-size: 0.95rem;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.thanks-title {
+  font-size: clamp(2.4rem, 8vw, 3.4rem);
+  margin: 0;
+}
+.thanks-detail {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin: 6px 0 0;
+}
+
+/* FAQ */
+.faq {
+  margin: 0;
+  text-align: left;
+  border-top: 1px solid var(--gold-pale);
+}
+.faq-item {
+  border-bottom: 1px solid var(--gold-pale);
+}
+.faq-q {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 4px;
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--champagne);
+}
+.faq-q::-webkit-details-marker {
+  display: none;
+}
+.faq-mark {
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--gold);
+}
+.faq-mark::before,
+.faq-mark::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+.faq-mark::after {
+  transform: rotate(90deg);
+  transition: transform 0.25s;
+}
+.faq-item[open] .faq-mark::after {
+  transform: rotate(0deg);
+}
+.faq-a {
+  margin: 0;
+  padding: 0 4px 22px;
+  max-width: 36rem;
+  color: var(--ink-soft);
+}
+
+/* ── Responsive ── */
+/* ── Phone frame: illustrated rose border, pinned to the viewport ── */
+@media (max-width: 767px) {
+  .frame-outer,
+  .frame-inner,
+  .corner {
+    display: none;
+  }
+  .frame-art {
+    display: block;
+    position: absolute;
+    inset: 0;
+    /* Image is 900x1258: gold corner flourishes joined by a thin double rule.
+       Slices keep each corner intact; the rule between them stretches.
+       --frame-scale shrinks the whole border; 1 = the image's own proportion. */
+    --frame-scale: 0.9;
+    --slice-top: 240;
+    --slice-side: 222;
+    --slice-bottom: 262;
+    border-style: solid;
+    border-color: transparent;
+    border-image-source: url("/weddingBorder.webp");
+    border-image-slice: 240 222 262 222;
+    border-image-width:
+      calc(100vw * var(--slice-top) / 900 * var(--frame-scale))
+      calc(100vw * var(--slice-side) / 900 * var(--frame-scale))
+      calc(100vw * var(--slice-bottom) / 900 * var(--frame-scale))
+      calc(100vw * var(--slice-side) / 900 * var(--frame-scale));
+    border-image-repeat: stretch;
+  }
+  /* The rule sits ~4vw in from each edge; only the corners are deep. */
+  .shell {
+    padding: 44px 30px 52px;
+  }
+  .nav {
+    padding-top: 0;
+  }
+  .content {
+    padding-block: 20px 28px;
+  }
+  .name {
+    font-size: clamp(2.3rem, 11.5vw, 3.4rem);
+  }
+  .panel-title {
+    font-size: 1.5rem;
+  }
+  .panel-sub {
+    font-size: 1rem;
+  }
+  .nav-links {
+    column-gap: 18px;
+  }
+  .nav-link {
+    font-size: 0.95rem;
+    letter-spacing: 0.16em;
+  }
+  .btn {
+    width: 100%;
+    padding: 13px 16px;
+    letter-spacing: 0.12em;
+    font-size: 1rem;
+  }
+  .chip {
+    padding: 8px 6px;
+    letter-spacing: 0.04em;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 560px) {
+  body {
+    font-size: 1.05rem;
+  }
+  .guest-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .choice {
+    width: 100%;
+  }
+  .chip {
+    flex: 1;
+    text-align: center;
+  }
+  .date-line .rule {
+    height: 1.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Form errors ── */
+.form-error {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: #f0c9b0;
+}
