@@ -656,6 +656,15 @@ a:hover {
   max-width: 36rem;
   color: var(--ink-soft);
 }
+.faq-img {
+  display: block;
+  width: 100%;
+  max-width: 36rem;
+  height: auto;
+  margin: -6px 4px 22px;
+  border: 1px solid var(--gold-pale);
+  border-radius: 6px;
+}
 
 /* ── Responsive ── */
 /* ── Phone frame: illustrated rose border, pinned to the viewport ── */

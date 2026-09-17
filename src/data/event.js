@@ -13,7 +13,7 @@ export const EVENT = {
   mapsUrl:
     "https://www.google.com/maps/search/?api=1&query=Dallas%2FPlano+Marriott+at+Legacy+Town+Center+7121+Bishop+Rd+Plano+TX",
   rsvpBy: "November 27, 2026",
-  contactPhone: "(000) 000-0000",
+  contactPhone: "(203) 300-7233",
   // ISO times for the calendar file, Central Time (UTC-6 in December)
   startsAt: "20261228T000000Z",
   endsAt: "20261228T050000Z",

@@ -7,27 +7,12 @@ const FAQS = [
   },
   {
     q: "What should I wear?",
-    a: "Formal attire. Think what you'd wear to a wedding in a ballroom: sherwanis, suits, sarees, lehengas, and gowns are all welcome.",
+    a: "Desi attire. Men: sherwanis or other desi formal wear. Women: desi formal wear.",
   },
   {
     q: "Where do I park?",
-    a: "The Marriott has on-site parking, and there are public garages across Bishop Road at Legacy Town Center. We'll have details on validation closer to the date.",
-  },
-  {
-    q: "Are children welcome?",
-    a: "Yes. The whole family is invited. Let us know on your reply how many little ones are coming so we can plan seating.",
-  },
-  {
-    q: "Will there be food?",
-    a: "Dinner will be served, and everything is halal. Tell us about any allergies or dietary needs in the note on your reply.",
-  },
-  {
-    q: "Is there a hotel block?",
-    a: "We're arranging a room block at the Marriott for out-of-town guests. Check back here for the booking link.",
-  },
-  {
-    q: "Can I bring a guest who isn't on my invitation?",
-    a: `Seating is limited, so we can only host the names on your invitation. If your circumstances change, text us at ${EVENT.contactPhone} and we'll do our best.`,
+    a: "Use the parking garage just west of the Marriott, across Marinda Road, between Daniel Road and Dallas Parkway. It's outlined on the map below.",
+    img: { src: "/parking-map.png", alt: "Map of the Dallas/Plano Marriott at Legacy Town Center with the parking garage outlined in red, west of the hotel across Marinda Road" },
   },
   {
     q: "Do you have a registry?",
@@ -55,6 +40,9 @@ export default function Faq() {
               <span className="faq-mark" aria-hidden="true" />
             </summary>
             <p className="faq-a">{f.a}</p>
+            {f.img && (
+              <img className="faq-img" src={f.img.src} alt={f.img.alt} loading="lazy" />
+            )}
           </details>
         ))}
       </dl>
