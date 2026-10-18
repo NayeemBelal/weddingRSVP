@@ -248,7 +248,7 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
   );
   const [attend, setAttend] = useState(() =>
     guest
-      ? [{ kind: "guest", id: guest.id, name: fullName(guest), attending: guest.attending }, ...guest.sub_guests.map((s) => ({ kind: "sub", id: s.id, name: memberLabel(s, guest.sub_guests), attending: s.attending }))]
+      ? [{ kind: "guest", id: guest.id, name: fullName(guest), attending: guest.attending }, ...guest.sub_guests.map((s) => ({ kind: "sub", id: s.id, name: memberLabel(s, guest.sub_guests, guest.first_name), attending: s.attending }))]
       : []
   );
   const [busy, setBusy] = useState(false);
@@ -359,13 +359,14 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
                 <span className="adm-subhead-actions">
                   <button className="adm-link" onClick={() => addSub()}>+ Add person</button>
                   <button className="adm-link" onClick={() => addSub("wife")}>+ Wife</button>
-                  <button className="adm-link" onClick={() => addSub("child")}>+ Child</button>
+                  <button className="adm-link" onClick={() => addSub("son")}>+ Son</button>
+                  <button className="adm-link" onClick={() => addSub("daughter")}>+ Daughter</button>
                 </span>
               </div>
-              {form.sub_guests.length === 0 && <p className="adm-muted adm-small">No one else on this invitation. Use Wife or Child when you don't know the name; the invite will say "your wife" or "your child".</p>}
+              {form.sub_guests.length === 0 && <p className="adm-muted adm-small">No one else on this invitation. Use Wife, Son or Daughter when you don't know the name; the invite will say "{form.first_name || "Nayeem"}'s wife" and so on.</p>}
               {form.sub_guests.map((s, i) => (
                 <div key={s.id || `new-${i}`} className={`adm-sub-row ${s.relation ? "has-relation" : ""}`}>
-                  {s.relation && <span className={`adm-pill adm-pill-${s.relation}`}>{s.relation === "wife" ? "Wife" : "Child"}</span>}
+                  {s.relation && <span className={`adm-pill adm-pill-${s.relation}`}>{memberShort({ relation: s.relation })}</span>}
                   <input placeholder={s.relation ? "First (optional)" : "First"} value={s.first_name} onChange={(e) => setSub(i, "first_name", e.target.value)} />
                   <input placeholder={s.relation ? "Last (optional)" : "Last"} value={s.last_name} onChange={(e) => setSub(i, "last_name", e.target.value)} />
                   <button className="adm-icon-btn" onClick={() => removeSub(i)} aria-label="Remove">×</button>

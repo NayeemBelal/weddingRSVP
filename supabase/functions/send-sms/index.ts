@@ -19,15 +19,15 @@ const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
 type Sub = { first_name: string; last_name: string; relation: string | null; attending: boolean | null };
+const WORD: Record<string, [string, string]> = { wife: ["wife", "wives"], son: ["son", "sons"], daughter: ["daughter", "daughters"], child: ["child", "children"] };
 function partySummary(subs: Sub[]) {
   const name = (s: Sub) => `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
-  const named = subs.map(name).filter(Boolean);
-  const wife = subs.some((s) => s.relation === "wife" && !name(s));
-  const kids = subs.filter((s) => s.relation === "child" && !name(s)).length;
-  const parts = ["you", ...named];
-  if (wife) parts.push("your wife");
-  if (kids === 1) parts.push("your child");
-  if (kids > 1) parts.push(`your ${kids} children`);
+  const parts = ["you", ...subs.map(name).filter(Boolean)];
+  for (const rel of Object.keys(WORD)) {
+    const n = subs.filter((s) => s.relation === rel && !name(s)).length;
+    if (n === 1) parts.push(`your ${WORD[rel][0]}`);
+    if (n > 1) parts.push(`your ${n} ${WORD[rel][1]}`);
+  }
   if (parts.length === 1) return "you";
   if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
   return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;

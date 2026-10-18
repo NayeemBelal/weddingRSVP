@@ -223,6 +223,8 @@ export function parseCsv(text) {
       .map((s) => {
         const tag = s.toLowerCase();
         if (tag === "wife" || tag === "spouse") return { first_name: "", last_name: "", relation: "wife" };
+        if (tag === "son" || tag === "boy") return { first_name: "", last_name: "", relation: "son" };
+        if (tag === "daughter" || tag === "girl") return { first_name: "", last_name: "", relation: "daughter" };
         if (tag === "child" || tag === "kid") return { first_name: "", last_name: "", relation: "child" };
         const [first_name, ...rest] = s.split(/\s+/);
         return { first_name, last_name: rest.join(" ") };

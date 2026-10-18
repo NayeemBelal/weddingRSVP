@@ -170,7 +170,7 @@ export default function Rsvp() {
                   <button type="button" className="pick-row" onClick={() => choose(p)}>
                     <span className="pick-label">{p.label}</span>
                     <span className="pick-members">
-                      {p.members.map((m) => memberLabel(m, p.members)).join(", ")}
+                      {p.members.map((m) => memberLabel(m, p.members, p.first_name)).join(", ")}
                     </span>
                   </button>
                 </li>
@@ -192,8 +192,8 @@ export default function Rsvp() {
             <ul className="guest-list">
               {party.members.map((m) => (
                 <li key={m.id} className="guest-row">
-                  <span className="guest-name">{memberLabel(m, party.members)}</span>
-                  <span className="choice" role="radiogroup" aria-label={`${memberLabel(m, party.members)} attending?`}>
+                  <span className="guest-name">{memberLabel(m, party.members, party.first_name)}</span>
+                  <span className="choice" role="radiogroup" aria-label={`${memberLabel(m, party.members, party.first_name)} attending?`}>
                     {[
                       { v: true, label: "Attending" },
                       { v: false, label: "Can't make it" },
