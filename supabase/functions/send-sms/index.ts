@@ -18,6 +18,21 @@ const cors = {
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+type Sub = { first_name: string; last_name: string; relation: string | null; attending: boolean | null };
+function partySummary(subs: Sub[]) {
+  const name = (s: Sub) => `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
+  const named = subs.map(name).filter(Boolean);
+  const wife = subs.some((s) => s.relation === "wife" && !name(s));
+  const kids = subs.filter((s) => s.relation === "child" && !name(s)).length;
+  const parts = ["you", ...named];
+  if (wife) parts.push("your wife");
+  if (kids === 1) parts.push("your child");
+  if (kids > 1) parts.push(`your ${kids} children`);
+  if (parts.length === 1) return "you";
+  if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
 function render(tpl: string, vars: Record<string, string>) {
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] ?? "");
 }
@@ -58,7 +73,7 @@ Deno.serve(async (req) => {
 
   const { data: guests } = await admin
     .from("guests")
-    .select("id, first_name, last_name, phone, attending, invite_code, sub_guests(attending)")
+    .select("id, first_name, last_name, phone, attending, invite_code, sub_guests(first_name, last_name, relation, attending)")
     .in("id", guest_ids);
 
   const rows = [];
@@ -77,6 +92,7 @@ Deno.serve(async (req) => {
         last_name: g.last_name,
         rsvp_link: `${secrets.site_url}/rsvp?c=${g.invite_code}`,
         attending_count: String(attending_count),
+        party: partySummary(g.sub_guests ?? []),
       }),
     });
   }

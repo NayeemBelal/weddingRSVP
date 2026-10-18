@@ -145,7 +145,8 @@ export default function Messages() {
           <h2>Templates</h2>
           <p className="adm-muted adm-small">
             Placeholders: <code>{"{{first_name}}"}</code>, <code>{"{{rsvp_link}}"}</code>,{" "}
-            <code>{"{{attending_count}}"}</code>. The confirmation goes out automatically when someone replies on the site.
+            <code>{"{{attending_count}}"}</code>, <code>{"{{party}}"}</code> (e.g. "you, your wife and 2 children").
+            The confirmation goes out automatically when someone replies on the site.
           </p>
           {templates.map((t, i) => (
             <div key={t.key} className="adm-card">

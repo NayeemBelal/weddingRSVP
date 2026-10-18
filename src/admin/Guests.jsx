@@ -6,6 +6,7 @@ import {
 } from "./api.js";
 
 import ImagePicker from "./ImagePicker.jsx";
+import { memberShort, memberLabel } from "../lib/party.js";
 import { supabase } from "../lib/supabase.js";
 
 const SITE = "https://faatimahandnayeem.com";
@@ -67,7 +68,7 @@ export default function Guests() {
       if (status !== "all" && partyStatus(g) !== status) return false;
       if (side !== "all" && g.side !== side) return false;
       if (!needle) return true;
-      const hay = [fullName(g), g.phone, g.group_label, ...g.sub_guests.map(fullName)].join(" ").toLowerCase();
+      const hay = [fullName(g), g.phone, g.group_label, ...g.sub_guests.map(memberShort)].join(" ").toLowerCase();
       return hay.includes(needle);
     });
     const cmp = {
@@ -192,7 +193,7 @@ export default function Guests() {
                     {g.group_label && <div className="adm-sub">{g.group_label}{g.side ? ` · ${g.side === "bride" ? "Faatimah's" : "Nayeem's"}` : ""}</div>}
                   </td>
                   <td className="adm-mono">{g.phone ? prettyPhone(g.phone) : <span className="adm-sub">—</span>}</td>
-                  <td className="adm-sub">{g.sub_guests.length ? g.sub_guests.map(fullName).join(", ") : "Just them"}</td>
+                  <td className="adm-sub">{g.sub_guests.length ? g.sub_guests.map(memberShort).join(", ") : "Just them"}</td>
                   <td className="adm-mono">{g.responded_at ? `${attendingCount(g)} of ${partySize(g)}` : `— of ${partySize(g)}`}</td>
                   <td><span className={`adm-badge adm-badge-${st}`}>{STATUS_LABEL[st]}</span></td>
                   <td className="adm-sub">{g.responded_at ? new Date(g.responded_at).toLocaleDateString(undefined, { month: "short", day: "numeric" }) : ""}</td>
@@ -247,7 +248,7 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
   );
   const [attend, setAttend] = useState(() =>
     guest
-      ? [{ kind: "guest", id: guest.id, name: fullName(guest), attending: guest.attending }, ...guest.sub_guests.map((s) => ({ kind: "sub", id: s.id, name: fullName(s), attending: s.attending }))]
+      ? [{ kind: "guest", id: guest.id, name: fullName(guest), attending: guest.attending }, ...guest.sub_guests.map((s) => ({ kind: "sub", id: s.id, name: memberLabel(s, guest.sub_guests), attending: s.attending }))]
       : []
   );
   const [busy, setBusy] = useState(false);
@@ -265,7 +266,14 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
     const subs = f.sub_guests.map((s, j) => (j === i ? { ...s, [k]: v } : s));
     return { ...f, sub_guests: subs };
   });
-  const addSub = () => set("sub_guests", [...form.sub_guests, { first_name: "", last_name: form.last_name, attending: null }]);
+  const addSub = (relation = null) =>
+    setForm((f) => ({
+      ...f,
+      sub_guests: [
+        ...f.sub_guests,
+        { first_name: "", last_name: relation ? "" : f.last_name, relation, attending: null },
+      ],
+    }));
   const removeSub = (i) => set("sub_guests", form.sub_guests.filter((_, j) => j !== i));
 
   const save = async () => {
@@ -348,13 +356,18 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
 
               <div className="adm-subhead">
                 <span>Sub-guests</span>
-                <button className="adm-link" onClick={addSub}>+ Add person</button>
+                <span className="adm-subhead-actions">
+                  <button className="adm-link" onClick={() => addSub()}>+ Add person</button>
+                  <button className="adm-link" onClick={() => addSub("wife")}>+ Wife</button>
+                  <button className="adm-link" onClick={() => addSub("child")}>+ Child</button>
+                </span>
               </div>
-              {form.sub_guests.length === 0 && <p className="adm-muted adm-small">No one else on this invitation.</p>}
+              {form.sub_guests.length === 0 && <p className="adm-muted adm-small">No one else on this invitation. Use Wife or Child when you don't know the name; the invite will say "your wife" or "your child".</p>}
               {form.sub_guests.map((s, i) => (
-                <div key={s.id || `new-${i}`} className="adm-sub-row">
-                  <input placeholder="First" value={s.first_name} onChange={(e) => setSub(i, "first_name", e.target.value)} />
-                  <input placeholder="Last" value={s.last_name} onChange={(e) => setSub(i, "last_name", e.target.value)} />
+                <div key={s.id || `new-${i}`} className={`adm-sub-row ${s.relation ? "has-relation" : ""}`}>
+                  {s.relation && <span className={`adm-pill adm-pill-${s.relation}`}>{s.relation === "wife" ? "Wife" : "Child"}</span>}
+                  <input placeholder={s.relation ? "First (optional)" : "First"} value={s.first_name} onChange={(e) => setSub(i, "first_name", e.target.value)} />
+                  <input placeholder={s.relation ? "Last (optional)" : "Last"} value={s.last_name} onChange={(e) => setSub(i, "last_name", e.target.value)} />
                   <button className="adm-icon-btn" onClick={() => removeSub(i)} aria-label="Remove">×</button>
                 </div>
               ))}

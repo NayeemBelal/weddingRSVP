@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { EVENT } from "../data/event.js";
 import { supabase } from "../lib/supabase.js";
+import { memberLabel } from "../lib/party.js";
 
 const formatPhone = (value) => {
   let d = value.replace(/\D/g, "");
@@ -169,7 +170,7 @@ export default function Rsvp() {
                   <button type="button" className="pick-row" onClick={() => choose(p)}>
                     <span className="pick-label">{p.label}</span>
                     <span className="pick-members">
-                      {p.members.map((m) => m.name).join(", ")}
+                      {p.members.map((m) => memberLabel(m, p.members)).join(", ")}
                     </span>
                   </button>
                 </li>
@@ -191,8 +192,8 @@ export default function Rsvp() {
             <ul className="guest-list">
               {party.members.map((m) => (
                 <li key={m.id} className="guest-row">
-                  <span className="guest-name">{m.name}</span>
-                  <span className="choice" role="radiogroup" aria-label={`${m.name} attending?`}>
+                  <span className="guest-name">{memberLabel(m, party.members)}</span>
+                  <span className="choice" role="radiogroup" aria-label={`${memberLabel(m, party.members)} attending?`}>
                     {[
                       { v: true, label: "Attending" },
                       { v: false, label: "Can't make it" },

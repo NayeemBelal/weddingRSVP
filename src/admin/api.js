@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase.js";
+import { memberShort, partySummary } from "../lib/party.js";
 
 // ── Phone helpers (US only) ──────────────────────────────────────────
 export function toE164(value) {
@@ -128,13 +129,15 @@ export async function saveGuest({ id, first_name, last_name, phone, side, group_
   const toDelete = (existing || []).filter((s) => !keep.has(s.id)).map((s) => s.id);
   if (toDelete.length) await supabase.from("sub_guests").delete().in("id", toDelete);
 
+  // Every row carries an id so the bulk upsert sees one uniform shape (PostgREST rejects mixed keys).
   const rows = sub_guests
-    .filter((s) => s.first_name.trim())
+    .filter((s) => (s.first_name || "").trim() || s.relation)
     .map((s, i) => ({
-      ...(s.id ? { id: s.id } : {}),
+      id: s.id || crypto.randomUUID(),
       guest_id: guestId,
-      first_name: s.first_name.trim(),
+      first_name: (s.first_name || "").trim(),
       last_name: (s.last_name || "").trim(),
+      relation: s.relation || null,
       attending: s.attending ?? null,
       sort_order: i + 1,
     }));
@@ -218,6 +221,9 @@ export function parseCsv(text) {
       .map((s) => s.trim())
       .filter(Boolean)
       .map((s) => {
+        const tag = s.toLowerCase();
+        if (tag === "wife" || tag === "spouse") return { first_name: "", last_name: "", relation: "wife" };
+        if (tag === "child" || tag === "kid") return { first_name: "", last_name: "", relation: "child" };
         const [first_name, ...rest] = s.split(/\s+/);
         return { first_name, last_name: rest.join(" ") };
       });
@@ -239,7 +245,7 @@ export function toCsv(guests) {
     g.first_name, g.last_name, prettyPhone(g.phone), g.side || "", g.group_label || "",
     partyStatus(g), attendingCount(g), partySize(g),
     g.responded_at ? new Date(g.responded_at).toLocaleDateString() : "",
-    g.sub_guests.map((s) => `${fullName(s)}${s.attending === true ? " (yes)" : s.attending === false ? " (no)" : ""}`).join("; "),
+    g.sub_guests.map((s) => `${memberShort(s)}${s.attending === true ? " (yes)" : s.attending === false ? " (no)" : ""}`).join("; "),
     g.notes.map((n) => n.body).join(" | "),
   ]);
   return [head, ...rows].map((r) => r.map(esc).join(",")).join("\n");
@@ -266,6 +272,7 @@ export function renderTemplate(tpl, g, siteUrl = window.location.origin) {
     last_name: g.last_name,
     rsvp_link: `${siteUrl}/rsvp?c=${g.invite_code}`,
     attending_count: String(attendingCount(g)),
+    party: partySummary(g.sub_guests || []),
   };
   return tpl.replace(/\{\{\s*(\w+)\s*\}\}/g, (_, k) => vars[k] ?? "");
 }
