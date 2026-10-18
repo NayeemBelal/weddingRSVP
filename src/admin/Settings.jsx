@@ -4,9 +4,10 @@ import { fetchSettings, saveSetting } from "./api.js";
 export default function Settings() {
   const [s, setS] = useState(null);
   const [saved, setSaved] = useState("");
+  const [err, setErr] = useState("");
 
   useEffect(() => {
-    fetchSettings().then(setS);
+    fetchSettings().then(setS).catch((e) => setErr(e.message));
   }, []);
 
   const update = async (key, value) => {
@@ -16,6 +17,7 @@ export default function Settings() {
     setTimeout(() => setSaved(""), 1500);
   };
 
+  if (err) return <p className="adm-error">{err}</p>;
   if (!s) return <p className="adm-muted">Loading…</p>;
 
   return (

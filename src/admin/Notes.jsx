@@ -4,9 +4,10 @@ import { fetchNotes, fullName } from "./api.js";
 
 export default function Notes() {
   const [notes, setNotes] = useState(null);
+  const [err, setErr] = useState("");
 
   useEffect(() => {
-    fetchNotes().then(setNotes).catch(() => setNotes([]));
+    fetchNotes().then(setNotes).catch((e) => { setErr(e.message); setNotes([]); });
   }, []);
 
   if (!notes) return <p className="adm-muted">Loading…</p>;
@@ -17,6 +18,7 @@ export default function Notes() {
         <h1>Notes</h1>
         <p className="adm-muted">{notes.length} {notes.length === 1 ? "note" : "notes"} from guests</p>
       </div>
+      {err && <p className="adm-error">{err}</p>}
       {notes.length === 0 ? (
         <p className="adm-empty">No notes yet. Anything a guest types in the note box when replying shows up here.</p>
       ) : (

@@ -4,6 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import { EVENT } from "../data/event.js";
 import { supabase } from "../lib/supabase.js";
 
+const formatPhone = (value) => {
+  let d = value.replace(/\D/g, "");
+  if (d.length === 11 && d.startsWith("1")) d = d.slice(1);
+  d = d.slice(0, 10);
+  if (d.length < 4) return d;
+  if (d.length < 7) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+};
+const phoneDigits = (value) => {
+  const d = value.replace(/\D/g, "");
+  return d.length === 11 && d.startsWith("1") ? d.slice(1) : d;
+};
+
 const swap = {
   initial: { opacity: 0, y: 16 },
   animate: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.25, 0.1, 0.25, 1] } },
@@ -21,6 +34,7 @@ export default function Rsvp() {
   const [party, setParty] = useState(null); // { guest_id, label, members: [{id,name,attending}] }
   const [attending, setAttending] = useState({});
   const [note, setNote] = useState("");
+  const [phone, setPhone] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [yesCount, setYesCount] = useState(0);
@@ -56,10 +70,12 @@ export default function Rsvp() {
   };
 
   const allAnswered = party && party.members.every((m) => attending[m.id] !== null);
+  const needsPhone = party && !party.has_phone;
+  const phoneOk = !needsPhone || phoneDigits(phone).length === 10;
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!allAnswered) return;
+    if (!allAnswered || !phoneOk) return;
     setBusy(true);
     setError("");
     const responses = party.members.map((m) => ({ id: m.id, attending: attending[m.id] }));
@@ -67,12 +83,18 @@ export default function Rsvp() {
       p_guest_id: party.guest_id,
       responses,
       note: note || null,
+      phone: needsPhone ? phone : null,
     });
     setBusy(false);
     if (err) {
       if (/closed/i.test(err.message)) return setStep("closed");
+      if (/already on another/i.test(err.message))
+        return setError("That phone number is already on another invitation. Try a different number, or text us.");
+      if (/phone/i.test(err.message)) return setError("Please enter a 10-digit US phone number.");
       return setError("We couldn't save your reply. Please try again, or text us.");
     }
+    // Their number is on file now, so a second edit won't ask again.
+    if (needsPhone) setParty({ ...party, has_phone: true });
     setYesCount(data?.attending_count ?? 0);
     setStep("done");
   };
@@ -82,6 +104,7 @@ export default function Rsvp() {
     setParty(null);
     setMatches([]);
     setNote("");
+    setPhone("");
     setError("");
   };
 
@@ -190,6 +213,22 @@ export default function Rsvp() {
               ))}
             </ul>
 
+            {needsPhone && (
+              <label className="field">
+                <span className="caps field-label">Your phone number</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  placeholder="(214) 555-0101"
+                  value={phone}
+                  onChange={(e) => setPhone(formatPhone(e.target.value))}
+                  required
+                />
+                <span className="field-help">We'll text you a confirmation and any day-of updates.</span>
+              </label>
+            )}
+
             <label className="field">
               <span className="caps field-label">Anything we should know?</span>
               <textarea
@@ -201,7 +240,7 @@ export default function Rsvp() {
             </label>
 
             {error && <p className="form-error">{error}</p>}
-            <button className="btn" type="submit" disabled={!allAnswered || busy}>
+            <button className="btn" type="submit" disabled={!allAnswered || !phoneOk || busy}>
               {busy ? <span className="spinner" aria-label="Saving" /> : "Send reply"}
             </button>
             {!code && (

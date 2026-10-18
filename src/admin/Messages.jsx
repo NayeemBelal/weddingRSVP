@@ -29,11 +29,17 @@ export default function Messages() {
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
 
+  const [err, setErr] = useState("");
   const reload = async () => {
-    const [t, l, g] = await Promise.all([fetchTemplates(), fetchMessages().catch(() => []), fetchGuests()]);
-    setTemplates(t);
-    setLog(l);
-    setGuests(g);
+    try {
+      const [t, l, g] = await Promise.all([fetchTemplates(), fetchMessages(), fetchGuests()]);
+      setTemplates(t);
+      setLog(l);
+      setGuests(g);
+      setErr("");
+    } catch (e) {
+      setErr(e.message || String(e));
+    }
   };
   useEffect(() => { reload(); }, []);
 
@@ -81,6 +87,7 @@ export default function Messages() {
     setTimeout(() => setSaved(""), 1500);
   };
 
+  if (err) return <p className="adm-error">{err}</p>;
   if (!templates || !log || !guests) return <p className="adm-muted">Loading…</p>;
 
   return (

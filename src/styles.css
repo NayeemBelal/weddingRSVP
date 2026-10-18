@@ -475,6 +475,12 @@ a:hover {
   font-size: 0.85rem;
   color: var(--ink-soft);
 }
+.field-help {
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--ink-soft);
+  opacity: 0.8;
+}
 .field input,
 .field textarea {
   width: 100%;

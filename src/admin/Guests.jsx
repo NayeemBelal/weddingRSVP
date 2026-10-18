@@ -6,6 +6,7 @@ import {
 } from "./api.js";
 
 import ImagePicker from "./ImagePicker.jsx";
+import { supabase } from "../lib/supabase.js";
 
 const SITE = "https://faatimahandnayeem.com";
 
@@ -20,9 +21,17 @@ export default function Guests() {
   const [params, setParams] = useSearchParams();
   const [panel, setPanel] = useState(null); // { mode: 'edit'|'new', guest }
   const [toast, setToast] = useState("");
+  const [loadError, setLoadError] = useState("");
   const fileRef = useRef();
 
-  const load = async () => setGuests(await fetchGuests());
+  const load = async () => {
+    try {
+      setLoadError("");
+      setGuests(await fetchGuests());
+    } catch (err) {
+      setLoadError(err.message || String(err));
+    }
+  };
   useEffect(() => { load(); }, []);
 
   // Deep link from Notes / Messages: /admin?guest=ID
@@ -97,6 +106,24 @@ export default function Guests() {
     a.click();
   };
 
+  if (loadError) {
+    return (
+      <section className="adm-page">
+        <div className="adm-card">
+          <h2>Couldn't load the guest list</h2>
+          <p className="adm-error">{loadError}</p>
+          <p className="adm-muted adm-small">
+            If this says the sign-in token is invalid or "issued at future", sign out and back in. If it keeps
+            happening, the Supabase project needs a restart from its dashboard.
+          </p>
+          <div className="adm-panel-actions">
+            <button className="adm-btn" onClick={load}>Try again</button>
+            <button className="adm-btn" onClick={() => supabase.auth.signOut()}>Sign out</button>
+          </div>
+        </div>
+      </section>
+    );
+  }
   if (!guests) return <p className="adm-muted">Loading…</p>;
 
   return (
@@ -164,7 +191,7 @@ export default function Guests() {
                     <div className="adm-name">{fullName(g)}</div>
                     {g.group_label && <div className="adm-sub">{g.group_label}{g.side ? ` · ${g.side === "bride" ? "Faatimah's" : "Nayeem's"}` : ""}</div>}
                   </td>
-                  <td className="adm-mono">{prettyPhone(g.phone)}</td>
+                  <td className="adm-mono">{g.phone ? prettyPhone(g.phone) : <span className="adm-sub">—</span>}</td>
                   <td className="adm-sub">{g.sub_guests.length ? g.sub_guests.map(fullName).join(", ") : "Just them"}</td>
                   <td className="adm-mono">{g.responded_at ? `${attendingCount(g)} of ${partySize(g)}` : `— of ${partySize(g)}`}</td>
                   <td><span className={`adm-badge adm-badge-${st}`}>{STATUS_LABEL[st]}</span></td>
@@ -302,7 +329,11 @@ function GuestPanel({ mode, guest, onClose, onSaved }) {
                 <label className="adm-field"><span>First name</span><input value={form.first_name} onChange={(e) => set("first_name", e.target.value)} autoFocus={mode === "new"} /></label>
                 <label className="adm-field"><span>Last name</span><input value={form.last_name} onChange={(e) => set("last_name", e.target.value)} /></label>
               </div>
-              <label className="adm-field"><span>Phone</span><input inputMode="tel" placeholder="(214) 555-0101" value={form.phone} onChange={(e) => set("phone", e.target.value)} /></label>
+              <label className="adm-field">
+                <span>Phone</span>
+                <input inputMode="tel" placeholder="(214) 555-0101" value={form.phone} onChange={(e) => set("phone", e.target.value)} />
+                <small>Optional. If you leave it blank, the guest is asked for their number when they RSVP.</small>
+              </label>
               <div className="adm-grid-2">
                 <label className="adm-field">
                   <span>Side</span>
