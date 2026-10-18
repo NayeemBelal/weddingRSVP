@@ -12,6 +12,12 @@ const AUDIENCES = [
   ["attending", "Attending"],
   ["declined", "Not coming"],
   ["all", "Everyone"],
+  ["picked", "Specific people"],
+];
+const SIDES = [
+  ["all", "Both sides"],
+  ["groom", "Nayeem's side"],
+  ["bride", "Faatimah's side"],
 ];
 
 export default function Messages() {
@@ -22,6 +28,9 @@ export default function Messages() {
 
   // Compose state
   const [audience, setAudience] = useState("pending");
+  const [side, setSide] = useState("all");
+  const [picked, setPicked] = useState([]); // guest ids chosen by hand
+  const [pickQuery, setPickQuery] = useState("");
   const [tplKey, setTplKey] = useState("reminder");
   const [custom, setCustom] = useState("");
   const [useCustom, setUseCustom] = useState(false);
@@ -45,25 +54,46 @@ export default function Messages() {
 
   const recipients = useMemo(() => {
     if (!guests) return [];
-    return guests.filter((g) => g.phone && (audience === "all" || partyStatus(g) === audience));
-  }, [guests, audience]);
+    if (audience === "picked") return guests.filter((g) => picked.includes(g.id));
+    return guests.filter(
+      (g) =>
+        g.phone &&
+        (audience === "all" || partyStatus(g) === audience) &&
+        (side === "all" || g.side === side)
+    );
+  }, [guests, audience, side, picked]);
+
+  const noPhone = recipients.filter((g) => !g.phone).length;
+  const sendable = recipients.filter((g) => g.phone);
+
+  // Search for the "Specific people" picker: names, sub-guests, phone, group.
+  const pickResults = useMemo(() => {
+    if (!guests || audience !== "picked") return [];
+    const q = pickQuery.trim().toLowerCase();
+    if (!q) return [];
+    return guests
+      .filter((g) => !picked.includes(g.id))
+      .filter((g) => [fullName(g), g.phone, g.group_label, ...g.sub_guests.map(fullName)].join(" ").toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [guests, audience, pickQuery, picked]);
 
   const activeTemplate = templates?.find((t) => t.key === tplKey);
   const bodyText = useCustom ? custom : activeTemplate?.body || "";
   const imageUrl = useCustom ? customImage : activeTemplate?.media_url || null;
-  const preview = recipients[0] ? renderTemplate(bodyText, recipients[0], SITE) : bodyText;
+  const preview = sendable[0] ? renderTemplate(bodyText, sendable[0], SITE) : bodyText;
 
   const queued = (log || []).filter((m) => m.status === "queued" || m.status === "sending").length;
 
   const send = async () => {
-    if (!recipients.length || !bodyText.trim()) return;
-    const ok = confirm(`Send this text to ${recipients.length} ${recipients.length === 1 ? "person" : "people"}?\n\n${preview}`);
+    if (!sendable.length || !bodyText.trim()) return;
+    const who = sendable.length <= 3 ? sendable.map(fullName).join(", ") : `${sendable.length} people`;
+    const ok = confirm(`Send this text to ${who}?\n\n${preview}`);
     if (!ok) return;
     setSending(true);
     setResult(null);
     try {
       const r = await sendSms({
-        guest_ids: recipients.map((g) => g.id),
+        guest_ids: sendable.map((g) => g.id),
         template: useCustom ? undefined : tplKey,
         body: useCustom ? custom : undefined,
         media_url: useCustom ? customImage : undefined,
@@ -105,8 +135,15 @@ export default function Messages() {
             <select value={audience} onChange={(e) => setAudience(e.target.value)}>
               {AUDIENCES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
             </select>
-            <small>{recipients.length} {recipients.length === 1 ? "person" : "people"} with a phone number</small>
           </label>
+          {audience !== "picked" && (
+            <label className="adm-field">
+              <span>Side</span>
+              <select value={side} onChange={(e) => setSide(e.target.value)}>
+                {SIDES.map(([k, l]) => <option key={k} value={k}>{l}</option>)}
+              </select>
+            </label>
+          )}
           <label className="adm-field">
             <span>Message</span>
             <select value={useCustom ? "__custom" : tplKey} onChange={(e) => { if (e.target.value === "__custom") setUseCustom(true); else { setUseCustom(false); setTplKey(e.target.value); } }}>
@@ -115,6 +152,64 @@ export default function Messages() {
             </select>
           </label>
         </div>
+
+        {audience === "picked" && (
+          <div className="adm-field">
+            <span>Find people</span>
+            <div className="adm-picker">
+              <input
+                className="adm-search"
+                placeholder="Type a name, phone or group…"
+                value={pickQuery}
+                onChange={(e) => setPickQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && pickResults[0]) {
+                    e.preventDefault();
+                    setPicked([...picked, pickResults[0].id]);
+                    setPickQuery("");
+                  }
+                }}
+              />
+              {pickResults.length > 0 && (
+                <ul className="adm-picker-results">
+                  {pickResults.map((g) => (
+                    <li key={g.id}>
+                      <button type="button" onClick={() => { setPicked([...picked, g.id]); setPickQuery(""); }}>
+                        <span>{fullName(g)}</span>
+                        <small>{g.phone ? prettyPhone(g.phone) : "no phone"}{g.sub_guests.length ? ` · +${g.sub_guests.length}` : ""}</small>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {picked.length > 0 && (
+              <div className="adm-chips adm-picked">
+                {guests.filter((g) => picked.includes(g.id)).map((g) => (
+                  <span key={g.id} className={`adm-chip is-on ${g.phone ? "" : "is-warn"}`}>
+                    {fullName(g)}
+                    <button type="button" aria-label={`Remove ${fullName(g)}`} onClick={() => setPicked(picked.filter((id) => id !== g.id))}>×</button>
+                  </span>
+                ))}
+                <button type="button" className="adm-link" onClick={() => setPicked([])}>Clear</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="adm-recipients">
+          <strong>{sendable.length} {sendable.length === 1 ? "person" : "people"}</strong>
+          {sendable.length > 0 && (
+            <span className="adm-muted">
+              {" · "}
+              {sendable.slice(0, 6).map(fullName).join(", ")}
+              {sendable.length > 6 && ` and ${sendable.length - 6} more`}
+            </span>
+          )}
+          {noPhone > 0 && <span className="adm-warn-text"> · {noPhone} skipped (no phone number)</span>}
+          {sendable.length === 0 && <span className="adm-muted"> · nobody matches yet</span>}
+        </div>
+
         {useCustom && (
           <>
             <ImagePicker value={customImage} onChange={setCustomImage} />
@@ -134,8 +229,8 @@ export default function Messages() {
           {!result && queued > 0 && <span className="adm-muted">{queued} still going out…</span>}
           <span className="adm-spacer" />
           <button className="adm-btn" onClick={reload} disabled={sending}>Refresh</button>
-          <button className="adm-btn adm-btn-primary" onClick={send} disabled={sending || !recipients.length || !bodyText.trim()}>
-            {sending ? "Queueing…" : `Send to ${recipients.length}`}
+          <button className="adm-btn adm-btn-primary" onClick={send} disabled={sending || !sendable.length || !bodyText.trim()}>
+            {sending ? "Queueing…" : `Send to ${sendable.length}`}
           </button>
         </div>
       </div>
