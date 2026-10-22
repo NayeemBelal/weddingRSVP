@@ -50,15 +50,21 @@ export default function Guests() {
   const stats = useMemo(() => {
     if (!guests) return null;
     const s = { parties: guests.length, people: 0, attending: 0, declined: 0, pending: 0, responded: 0 };
+    const side = { groom: { parties: 0, people: 0, attending: 0, pending: 0 }, bride: { parties: 0, people: 0, attending: 0, pending: 0 }, none: { parties: 0, people: 0, attending: 0, pending: 0 } };
     for (const g of guests) {
       s.people += partySize(g);
       const st = partyStatus(g);
+      const sd = side[g.side] || side.none;
+      sd.parties += 1;
+      sd.people += partySize(g);
+      if (st === "attending") sd.attending += attendingCount(g);
+      if (st === "pending") sd.pending += 1;
       if (st === "pending") s.pending += 1; else s.responded += 1;
       if (st === "attending") s.attending += attendingCount(g);
       if (st === "declined") s.declined += partySize(g);
       else if (st === "attending") s.declined += partySize(g) - attendingCount(g);
     }
-    return s;
+    return { ...s, side };
   }, [guests]);
 
   const rows = useMemo(() => {
@@ -135,6 +141,14 @@ export default function Guests() {
         <Stat label="Attending" value={stats.attending} tone="good" />
         <Stat label="Not coming" value={stats.declined} tone="bad" />
         <Stat label="Pending" value={stats.pending} tone="warn" sub={`${stats.parties ? Math.round((stats.responded / stats.parties) * 100) : 0}% replied`} />
+      </div>
+
+      <div className="adm-sides">
+        <SideStat label="Nayeem's side" s={stats.side.groom} onClick={() => setSide(side === "groom" ? "all" : "groom")} active={side === "groom"} />
+        <SideStat label="Faatimah's side" s={stats.side.bride} onClick={() => setSide(side === "bride" ? "all" : "bride")} active={side === "bride"} />
+        {stats.side.none.parties > 0 && (
+          <SideStat label="No side set" s={stats.side.none} muted />
+        )}
       </div>
 
       <div className="adm-toolbar">
@@ -216,6 +230,17 @@ export default function Guests() {
       )}
       {toast && <div className="adm-toast">{toast}</div>}
     </section>
+  );
+}
+
+function SideStat({ label, s, onClick, active, muted }) {
+  return (
+    <button type="button" className={`adm-side ${active ? "is-on" : ""} ${muted ? "is-muted" : ""}`} onClick={onClick} disabled={!onClick}>
+      <span className="adm-side-label">{label}</span>
+      <span className="adm-side-nums">
+        <b>{s.parties}</b> {s.parties === 1 ? "invite" : "invites"} · <b>{s.people}</b> people · <b>{s.attending}</b> attending · <b>{s.pending}</b> pending
+      </span>
+    </button>
   );
 }
 
