@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import ImagePicker from "./ImagePicker.jsx";
 import {
-  fetchMessages, fetchTemplates, saveTemplate, fetchGuests, sendSms, renderTemplate,
+  fetchMessages, fetchTemplates, saveTemplate, fetchGuests, fetchSentTemplates, sendSms, renderTemplate,
   fullName, partyStatus, prettyPhone,
 } from "./api.js";
 
@@ -24,6 +24,8 @@ export default function Messages() {
   const [templates, setTemplates] = useState(null);
   const [log, setLog] = useState(null);
   const [guests, setGuests] = useState(null);
+  const [sentMap, setSentMap] = useState(new Map());
+  const [skipSent, setSkipSent] = useState(true);
   const [saved, setSaved] = useState("");
 
   // Compose state
@@ -41,10 +43,11 @@ export default function Messages() {
   const [err, setErr] = useState("");
   const reload = async () => {
     try {
-      const [t, l, g] = await Promise.all([fetchTemplates(), fetchMessages(), fetchGuests()]);
+      const [t, l, g, sm] = await Promise.all([fetchTemplates(), fetchMessages(), fetchGuests(), fetchSentTemplates()]);
       setTemplates(t);
       setLog(l);
       setGuests(g);
+      setSentMap(sm);
       setErr("");
     } catch (e) {
       setErr(e.message || String(e));
@@ -64,7 +67,9 @@ export default function Messages() {
   }, [guests, audience, side, picked]);
 
   const noPhone = recipients.filter((g) => !g.phone).length;
-  const sendable = recipients.filter((g) => g.phone);
+  const alreadySent = (g) => !useCustom && skipSent && sentMap.get(g.id)?.has(tplKey);
+  const skippedSent = recipients.filter((g) => g.phone && alreadySent(g)).length;
+  const sendable = recipients.filter((g) => g.phone && !alreadySent(g));
 
   // Search for the "Specific people" picker: names, sub-guests, phone, group.
   const pickResults = useMemo(() => {
@@ -197,6 +202,12 @@ export default function Messages() {
           </div>
         )}
 
+        {!useCustom && (
+          <label className="adm-check">
+            <input type="checkbox" checked={skipSent} onChange={(e) => setSkipSent(e.target.checked)} />
+            <span>Skip anyone who already received the <b>{activeTemplate?.label || "selected"}</b> message</span>
+          </label>
+        )}
         <div className="adm-recipients">
           <strong>{sendable.length} {sendable.length === 1 ? "person" : "people"}</strong>
           {sendable.length > 0 && (
@@ -207,6 +218,7 @@ export default function Messages() {
             </span>
           )}
           {noPhone > 0 && <span className="adm-warn-text"> · {noPhone} skipped (no phone number)</span>}
+          {skippedSent > 0 && <span className="adm-warn-text"> · {skippedSent} skipped (already received this message)</span>}
           {sendable.length === 0 && <span className="adm-muted"> · nobody matches yet</span>}
         </div>
 

@@ -265,3 +265,6 @@ code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 1
 .adm-side.is-on .adm-side-label { color: var(--accent); }
 .adm-side-nums { font-size: 14px; color: var(--muted); }
 .adm-side-nums b { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+.adm-check { display: flex; align-items: center; gap: 8px; font-size: 14px; margin: 2px 0 8px; cursor: pointer; }
+.adm-check input { width: 16px; height: 16px; accent-color: var(--accent); }

@@ -259,6 +259,23 @@ function friendly(error) {
   return new Error(error.message);
 }
 
+/** Which templates each guest has already been sent (and that actually went out). */
+export async function fetchSentTemplates() {
+  const { data, error } = await supabase
+    .from("messages")
+    .select("guest_id, template")
+    .eq("direction", "outbound")
+    .in("status", ["sent", "delivered"])
+    .not("template", "is", null);
+  if (error) throw error;
+  const map = new Map();
+  for (const m of data) {
+    if (!map.has(m.guest_id)) map.set(m.guest_id, new Set());
+    map.get(m.guest_id).add(m.template);
+  }
+  return map;
+}
+
 // ── Texting (Twilio via the send-sms edge function) ─────────────────
 export async function sendSms({ guest_ids, template, body, media_url }) {
   const { data, error } = await supabase.functions.invoke("send-sms", {
