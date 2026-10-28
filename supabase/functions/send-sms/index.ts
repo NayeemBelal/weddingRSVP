@@ -19,7 +19,7 @@ const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
 type Sub = { first_name: string; last_name: string; relation: string | null; attending: boolean | null };
-const WORD: Record<string, [string, string]> = { wife: ["wife", "wives"], son: ["son", "sons"], daughter: ["daughter", "daughters"], child: ["child", "children"] };
+const WORD: Record<string, [string, string]> = { wife: ["wife", "wives"], husband: ["husband", "husbands"], son: ["son", "sons"], daughter: ["daughter", "daughters"], child: ["child", "children"] };
 function partySummary(subs: Sub[]) {
   const name = (s: Sub) => `${s.first_name ?? ""} ${s.last_name ?? ""}`.trim();
   const parts = ["you", ...subs.map(name).filter(Boolean)];

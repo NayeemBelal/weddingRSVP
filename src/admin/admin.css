@@ -231,7 +231,7 @@ code { background: var(--bg); padding: 1px 5px; border-radius: 4px; font-size: 1
 .adm-subhead-actions { display: flex; gap: 14px; }
 .adm-sub-row.has-relation { grid-template-columns: auto 1fr 1fr auto; }
 .adm-pill { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.adm-pill-wife { background: var(--accent-soft); color: var(--accent); }
+.adm-pill-wife, .adm-pill-husband { background: var(--accent-soft); color: var(--accent); }
 .adm-pill-child, .adm-pill-son, .adm-pill-daughter { background: var(--warn-soft); color: var(--warn); }
 
 /* Recipient picker */

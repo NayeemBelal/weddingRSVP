@@ -1,9 +1,9 @@
 // Shared labelling for party members. A sub-guest may be a named person, or an
-// unnamed "wife" / "son" / "daughter" tag when the couple doesn't know the name.
+// unnamed "wife" / "husband" / "son" / "daughter" tag when the couple doesn't know the name.
 
 const ORDINALS = ["", "", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"];
-const WORD = { wife: "wife", son: "son", daughter: "daughter", child: "child" };
-const PLURAL = { wife: "wives", son: "sons", daughter: "daughters", child: "children" };
+const WORD = { wife: "wife", husband: "husband", son: "son", daughter: "daughter", child: "child" };
+const PLURAL = { wife: "wives", husband: "husbands", son: "sons", daughter: "daughters", child: "children" };
 
 /** Full name if any, otherwise empty string. */
 export function memberName(m) {
@@ -44,7 +44,7 @@ export function memberShort(m) {
 export function partySummary(subs = []) {
   const named = subs.map(memberName).filter(Boolean);
   const parts = ["you", ...named];
-  for (const rel of ["wife", "son", "daughter", "child"]) {
+  for (const rel of ["wife", "husband", "son", "daughter", "child"]) {
     const n = subs.filter((s) => s.relation === rel && !memberName(s)).length;
     if (n === 1) parts.push(`your ${WORD[rel]}`);
     if (n > 1) parts.push(`your ${n} ${PLURAL[rel]}`);
